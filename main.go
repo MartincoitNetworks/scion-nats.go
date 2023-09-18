@@ -17,6 +17,7 @@ func main() {
     var nc *nats.Conn
     cd := &customDialer{
         ctx:             ctx,
+		scionAddr: "18-ffaa:1:1",
         connectTimeout:  10 * time.Second,
         connectTimeWait: 1 * time.Second,
     }
