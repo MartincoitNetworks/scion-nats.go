@@ -1,3 +1,13 @@
+package main
+
+import (
+    "context"
+    "log"
+    "time"
+
+    "github.com/nats-io/nats.go"
+)
+
 func main() {
     // Parent context cancels connecting/reconnecting altogether.
     ctx, cancel := context.WithCancel(context.Background())
