@@ -37,7 +37,8 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 	addr, err := pan.ResolveUDPAddr(context.TODO(), fullAddr)
 	tlsCfg := &tls.Config{
 		InsecureSkipVerify: true,
-		NextProtos:         []string{"hello-quic"},
+		NextProtos:         []string{quicutil.SingleStreamProto},
+		//NextProtos:         []string{"hello-quic"},
 	}
 	quicConf := &quic.Config{
 		KeepAlivePeriod: 15 * time.Second,
