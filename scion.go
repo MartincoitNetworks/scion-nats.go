@@ -13,6 +13,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/netsec-ethz/scion-apps/pkg/pan"
 	"github.com/netsec-ethz/scion-apps/pkg/quicutil"
+	"github.com/quic-go/quic-go"
 )
 
 type customDialer struct {
@@ -38,8 +39,12 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 		InsecureSkipVerify: true,
 		NextProtos:         []string{"hello-quic"},
 	}
-	log.Println("resolve udbpdrr", addr)
-	ql, err := pan.DialQUIC(context.Background(), ipport.Get(), addr, policy, nil, "", tlsCfg, nil)
+	quicConf := &quic.Config{
+		KeepAlivePeriod: 15 * time.Second,
+	}
+	log.Println("resolveUPDAdrr:", addr)
+	// TODO: debug why quic is not connecting to loopback on remote scion host
+	ql, err := pan.DialQUIC(context.Background(), ipport.Get(), addr, policy, nil, "", tlsCfg, quicConf)
 	if err != nil {
 		return nil, err
 	}
