@@ -1,6 +1,8 @@
 module github.com/sarcasticadmin/nats-scion
 
-go 1.19
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/nats-io/nats.go v1.29.0
