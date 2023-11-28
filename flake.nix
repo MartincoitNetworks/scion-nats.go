@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
   outputs =
@@ -15,7 +15,7 @@
     {
       devShells.x86_64-linux.default = pkgs.mkShell {
         buildInputs = with pkgs; [
-          go_1_19
+          go
           delve
         ];
         # Required for delve to run correctly
