@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -15,9 +17,19 @@ func main() {
 
 	var err error
 	var nc *nats.Conn
+
+	argsOnly := os.Args[1:]
+	if len(argsOnly) == 0 {
+		log.Fatal("Please pass SCION Address:Port (e.g. 17-ffaa:1:1,[127.0.0.1]:4222)")
+	}
+
+	fullAddr := strings.Split(argsOnly[0], ",")
+	localAddr := fullAddr[len(fullAddr)-1]
+	scionAddr := fullAddr[0]
+
 	cd := &customDialer{
 		ctx:             ctx,
-		scionAddr:       "18-ffaa:1:10bf",
+		scionAddr:       scionAddr,
 		connectTimeout:  10 * time.Second,
 		connectTimeWait: 1 * time.Second,
 	}
@@ -36,7 +48,7 @@ func main() {
 		nats.NoReconnect(),
 	}
 	go func() {
-		nc, err = nats.Connect("127.0.0.1:4222", opts...)
+		nc, err = nats.Connect(localAddr, opts...)
 	}()
 
 WaitForEstablishedConnection:
