@@ -5,6 +5,7 @@ import (
 	//"flag"
 	"log"
 	"net"
+	"net/netip"
 	//"strings"
 	"time"
 	//"os"
@@ -28,10 +29,8 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 	// Simplistic policy
 	policy, err := pan.PolicyFromCommandline("", "latency", false)
 	log.Println(policy)
-	ipport := &pan.IPPortValue{}
 	log.Println("this is the address", address)
 	log.Println("this is the network", cd.scionAddr)
-	ipport.Set(address)
 	// The address can be of the form of a SCION address (i.e. of the form "ISD-AS,[IP]:port")
 	fullAddr := cd.scionAddr + "," + address
 	addr, err := pan.ResolveUDPAddr(context.TODO(), fullAddr)
@@ -45,7 +44,7 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 	}
 	log.Println("resolveUPDAdrr:", addr)
 	// TODO: debug why quic is not connecting to loopback on remote scion host
-	ql, err := pan.DialQUIC(context.Background(), ipport.Get(), addr, policy, nil, "", tlsCfg, quicConf)
+	ql, err := pan.DialQUIC(context.Background(), netip.AddrPort{}, addr, policy, nil, "", tlsCfg, quicConf)
 	if err != nil {
 		return nil, err
 	}
