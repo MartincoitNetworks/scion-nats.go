@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -18,12 +18,14 @@ func main() {
 	var err error
 	var nc *nats.Conn
 
-	argsOnly := os.Args[1:]
-	if len(argsOnly) == 0 {
+	subscribePtr := flag.Bool("subscribe", false, "subscribe")
+	flag.Parse()
+
+	if len(flag.Args()) == 0 {
 		log.Fatal("Please pass SCION Address:Port (e.g. 17-ffaa:1:1,[127.0.0.1]:4222)")
 	}
 
-	fullAddr := strings.Split(argsOnly[0], ",")
+	fullAddr := strings.Split(flag.Args()[0], ",")
 	localAddr := fullAddr[len(fullAddr)-1]
 	scionAddr := fullAddr[0]
 
@@ -76,17 +78,34 @@ WaitForEstablishedConnection:
 		log.Fatal(ctx.Err())
 	}
 
-	for {
-		if nc.IsClosed() {
-			break
+	if *subscribePtr {
+		// Simple Sync Subscriber
+		sub,_ := nc.SubscribeSync("hello")
+		log.Println("I subscribed")
+		for {
+			m, err := sub.NextMsg(2 * time.Second)
+			if err != nil {
+				log.Println(err)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+		    log.Println("Received a message: %s\n", string(m.Data))
 		}
-		if err := nc.Publish("hello", []byte("world")); err != nil {
-			log.Println(err)
+	} else {
+		for {
+			if nc.IsClosed() {
+				break
+			}
+			{
+				if err := nc.Publish("hello", []byte("world")); err != nil {
+					log.Println(err)
+					time.Sleep(1 * time.Second)
+					continue
+				}
+				log.Println("Published message")
+			}
 			time.Sleep(1 * time.Second)
-			continue
 		}
-		log.Println("Published message")
-		time.Sleep(1 * time.Second)
 	}
 
 	// Disconnect and flush pending messages
