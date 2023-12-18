@@ -89,7 +89,7 @@ WaitForEstablishedConnection:
 				time.Sleep(1 * time.Second)
 				continue
 			}
-		    log.Println("Received a message: %s\n", string(m.Data))
+		    log.Printf("Received a message: %s\n", string(m.Data))
 		}
 	} else {
 		for {
